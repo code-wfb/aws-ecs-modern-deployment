@@ -1,41 +1,38 @@
-[AWS] Modern Web Architecture: Containerization & CI/CD Pipeline
+AWS High-Availability Architecture: Multi-AZ Container Deployment
 📌 Project Overview
-This project demonstrates a full migration of a web application to a Cloud-Native architecture on AWS. The goal was to eliminate manual deployments and server management overhead by implementing a fully automated, scalable, and serverless container environment.
+This project implements a fault-tolerant, Multi-AZ (Availability Zone) web architecture on AWS. It demonstrates the migration of a monolithic application into a containerized environment using Amazon ECS (Fargate), ensuring high availability and automated scalability.
 
-🏗️ Architecture & Technologies
-The solution leverages the following AWS services:
+🏗️ Architecture Design
+The infrastructure was designed following the AWS Well-Architected Framework, specifically focusing on the Reliability and Operational Excellence pillars.
 
-Compute: Amazon ECS (Fargate) for serverless container orchestration.
+Compute: Amazon ECS with Fargate launch type (Serverless, Multi-AZ).
 
-Storage & Database: Amazon S3 for static assets and Amazon RDS for managed relational data.
+Load Balancing: Application Load Balancer (ALB) distributing traffic across 3 Public Subnets.
 
-Networking: Application Load Balancer (ALB) for traffic distribution and Health Checks.
+Network: Custom VPC with Public and Private Subnets across multiple Availability Zones to prevent single points of failure.
 
-CI/CD Pipeline: AWS CodePipeline, CodeBuild, and Amazon ECR for a fully automated "Source-to-Deploy" workflow.
+Database: Amazon RDS (Multi-AZ) for managed, redundant data persistence.
 
-Registry: Amazon Elastic Container Registry (ECR) for Docker image management.
+CI/CD: Full automation using AWS CodePipeline, CodeBuild, and GitHub.
 
-🚀 Key Features Implemented
-Containerization: Developed a multi-stage Dockerfile to optimize image size and security.
+🚀 Key Engineering Features
+1. Fault Tolerance & High Availability
+The application is deployed across multiple AZs. If one AWS data center experiences an outage, the Application Load Balancer automatically redirects traffic to healthy containers in the remaining zones, maintaining a zero-downtime experience.
 
-High Availability: Configured the Application Load Balancer to distribute traffic across multiple availability zones.
+2. Automated CI/CD Pipeline
+A robust "Source-to-Deploy" pipeline was established:
 
-Automated Pipeline: Every push to the GitHub repository triggers a build process that:
+Commit: Changes pushed to the main branch trigger the pipeline.
 
-Builds the new Docker image.
+Build: AWS CodeBuild creates a new Docker image and pushes it to Amazon ECR.
 
-Pushes the image to Amazon ECR.
+Deploy: ECS performs a Rolling Update, replacing old tasks with new ones only after successful Health Checks.
 
-Updates the ECS Service with zero-downtime (Rolling Update).
+3. Monitoring & Observability
+Integrated with Amazon CloudWatch to monitor:
 
-Security & Best Practices: Followed the AWS Well-Architected Framework, focusing on IAM role least-privilege and environment variable protection.
+CPU and Memory utilization per task.
 
-🛠️ How to Run
-Clone the repo: git clone https://github.com/code-wfb/aws-ecs-modern-deployment
+ALB Request counts and 5XX error rates.
 
-Build Docker Image: docker build -t my-app .
-
-(Optional) Infrastructure: Detailed CloudFormation/Terraform templates can be found in the /infra folder.
-
-📈 Professional Impact
-This implementation reduces deployment time by 80% compared to manual EC2 updates and ensures the application can scale automatically during traffic spikes, optimizing costs by using Fargate's pay-as-you-go model.
+Alarms: Configured SNS notifications for any service disruptions.
